@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Dual Dispatcher</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0f2f5;
+        }
+        .container {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid #e1e4e8;
+        }
+        .whatsapp-icon {
+            width: 60px;
+            height: 60px;
+            background: #e8faf4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .whatsapp-icon svg {
+            width: 32px;
+            height: 32px;
+            fill: #00a884;
+        }
+        h2 {
+            color: #111b21;
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+        p {
+            color: #667781;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+        button {
+            background: #00a884;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 168, 132, 0.2);
+        }
+        button:hover {
+            background: #008f72;
+            transform: translateY(-1px);
+        }
+        button:active {
+            transform: translateY(1px);
+        }
+        .status {
+            margin-top: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #8696a0;
+        }
+        .success { color: #00a884; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="whatsapp-icon">
+            <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397 0 11.93 0c3.168.001 6.148 1.233 8.39 3.476 2.242 2.243 3.473 5.224 3.473 8.391 0 6.587-5.334 11.933-11.866 11.933-2.002-.001-3.973-.51-5.716-1.486L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.725 1.451 5.405 0 9.801-4.394 9.804-9.793.001-2.615-1.017-5.074-2.871-6.928C16.4 2.031 13.945 1.016 11.33 1.016 5.925 1.016 1.53 5.411 1.527 10.81c-.001 1.637.479 3.236 1.387 4.665l-.355 1.297c-.38 1.388-.801 2.927-1.022 3.733l3.812-1 .303-.18z"/></svg>
+        </div>
+        <h2>Insta-Route Systems</h2>
+        <p>Clicking below initiates separate, distinct WhatsApp chat panels for both lines simultaneously.</p>
+        
+        <button id="dispatchBtn" onclick="runInBrowser()">
+            Open Both Chats Now
+        </button>
+
+        <div id="statusText" class="status"></div>
+    </div>
+
+    <script>
+        function runInBrowser() {
+            const status = document.getElementById('statusText');
+            status.innerText = "Querying live python routes...";
+            
+            // Call Render's hosted Python endpoint
+            fetch('/api/get-links')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    status.className = "status success";
+                    status.innerText = "Spawning messaging windows...";
+
+                    // Open the first number tab instantly
+                    window.open(data.links[0], '_blank');
+
+                    // Micro-timeout sequence separates the tab instructions. 
+                    // This lets the browser run the actions natively without blocking.
+                    setTimeout(() => {
+                        window.open(data.links[1], '_blank');
+                        status.innerText = "Both chats opened cleanly! ✓";
+                    }, 350);
+
+                } else {
+                    status.innerText = "Error parsing configuration data.";
+                }
+            })
+            .catch(err => {
+                status.innerText = "Connection to cloud instance failed.";
+                console.error(err);
+            });
+        }
+    </script>
+</body>
+</html>
